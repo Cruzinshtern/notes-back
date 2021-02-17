@@ -1,8 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 import { UserInterface } from "./interfaces/user.interface";
 import { UsersService } from "./users.service";
-import { UserDocument } from "./schemas/user.schema";
+import { User, UserDocument } from "./schemas/user.schema";
 import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
 
 @Controller('users')
 export class UsersController {
@@ -30,5 +31,15 @@ export class UsersController {
   @Delete(':id')
   delete(@Param('id') id: string): Observable<any> {
     return this.userService.delete(id);
+  }
+
+  @Post('login')
+  login(@Body() user) {
+    // console.log(user)
+    return this.userService.login(user).pipe(
+      map((token: string) => {
+        return { token: token }
+      })
+    )
   }
 }

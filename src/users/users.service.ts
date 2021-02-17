@@ -4,19 +4,38 @@ import { User, UserDocument } from "./schemas/user.schema";
 import { Model } from "mongoose";
 import { UserInterface } from "./interfaces/user.interface";
 import { from, Observable } from "rxjs";
+import { AuthService } from "../auth/service/auth.service";
+import { map, switchMap } from "rxjs/operators";
+import e from "express";
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private authService: AuthService,
+    ) {
   }
 
   create(user: UserInterface): Observable<UserDocument> {
-    const newUser = new this.userModel(user);
-    return from(newUser.save());
+    return this.authService.hashPassword(user.password).pipe(
+      switchMap((hashedPassword: string) => {
+        const newUser: UserInterface = {
+          name: user.name,
+          email: user.email,
+          password: hashedPassword,
+        };
+        return this.userModel.create(newUser);
+      })
+    )
+
   }
 
   getAll(): Observable<UserDocument[]> {
     return from(this.userModel.find());
+  }
+
+  getByEmail(email: string): Observable<UserDocument> {
+    return from(this.userModel.findOne( {email}));
   }
 
   update(id: string, user: UserInterface): Observable<UserDocument> {
@@ -26,5 +45,37 @@ export class UsersService {
   delete(id: string): Observable<any> {
     return from(this.userModel.findByIdAndDelete(id));
   }
+
+  validateUser(email: string, password: string): Observable<any> {
+    return this.getByEmail(email).pipe(
+      switchMap((user: UserInterface) =>
+        this.authService.comparePasswords(password, user.password).pipe(
+          map((isMatch: boolean) => {
+            if (isMatch) {
+              return user;
+            } else {
+              throw Error;
+            }
+          })
+        )
+      )
+    )
+  }
+
+
+  login(user): Observable<string> {
+    return this.validateUser(user.email, user.password).pipe(
+      switchMap((user) => {
+        if(user) {
+          return this.authService.generateJWT(user).pipe(
+            map((token: string) => token)
+          )
+        } else {
+          return 'Wrong credentials';
+        }
+      }),
+    );
+  }
+
 
 }
