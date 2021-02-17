@@ -15,8 +15,16 @@ export class UsersService {
     return from(newUser.save());
   }
 
-  getAllUsers(): Observable<UserDocument[]> {
+  getAll(): Observable<UserDocument[]> {
     return from(this.userModel.find());
+  }
+
+  update(id: string, user: UserInterface): Observable<UserDocument> {
+    return from(this.userModel.findByIdAndUpdate(id, user));
+  }
+
+  delete(id: string): Observable<any> {
+    return from(this.userModel.findByIdAndDelete(id));
   }
 
 }
