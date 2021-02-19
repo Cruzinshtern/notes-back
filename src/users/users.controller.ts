@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Req } from "@nestjs/common";
 import { UserInterface } from "./interfaces/user.interface";
 import { UsersService } from "./users.service";
 import { User, UserDocument } from "./schemas/user.schema";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
+import { Request } from "express";
 
 @Controller('users')
 export class UsersController {
@@ -16,7 +17,8 @@ export class UsersController {
   }
 
   @Get()
-  getAll(): Observable<UserDocument[]> {
+  getAll(@Req() request: Request): Observable<UserDocument[]> {
+    console.log(request)
     return this.userService.getAll();
   }
 
