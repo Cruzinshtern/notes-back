@@ -6,7 +6,7 @@ import { UserInterface } from "./interfaces/user.interface";
 import { from, Observable } from "rxjs";
 import { AuthService } from "../auth/service/auth.service";
 import { map, switchMap } from "rxjs/operators";
-import e from "express";
+
 
 @Injectable()
 export class UsersService {
@@ -30,9 +30,26 @@ export class UsersService {
 
   }
 
-  getAll(): Observable<UserDocument[]> {
-    return from(this.userModel.find());
+  async getAll(req): Promise<any> {
+    try {
+      const length = await this.userModel.countDocuments();
+      const currentPage = parseInt(req.query.page) || 1;
+      const itemsPerPage = parseInt(req.query.limit) || 3;
+      const offset = (currentPage - 1) * itemsPerPage;
+      const data = await this.userModel.find().limit(itemsPerPage).skip(offset);
+
+      const res = {
+        items: data.length ? data : 'Sorry, no data',
+        currentPage: currentPage,
+        itemsPerPage: itemsPerPage,
+        totalItems: length,
+      };
+        return res;
+    } catch (e) {
+      return e.message;
+    }
   }
+
 
   getByEmail(email: string): Observable<UserDocument> {
     return from(this.userModel.findOne( {email}));

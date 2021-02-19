@@ -1,10 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, Req } from "@nestjs/common";
 import { UserInterface } from "./interfaces/user.interface";
 import { UsersService } from "./users.service";
 import { User, UserDocument } from "./schemas/user.schema";
-import { Observable } from "rxjs";
-import { map } from "rxjs/operators";
-import { Request } from "express";
+import { from, Observable } from "rxjs";
+import { map, switchMap } from "rxjs/operators";
+
 
 @Controller('users')
 export class UsersController {
@@ -17,9 +17,8 @@ export class UsersController {
   }
 
   @Get()
-  getAll(@Req() request: Request): Observable<UserDocument[]> {
-    console.log(request)
-    return this.userService.getAll();
+  getAll(@Req() req): Observable<UserDocument[]> {
+    return from(this.userService.getAll(req));
   }
 
   @Put(':id')
