@@ -44,7 +44,7 @@ export class UsersService {
         itemsPerPage: itemsPerPage,
         totalItems: length,
       };
-        return res;
+      return res;
     } catch (e) {
       return e.message;
     }
@@ -52,7 +52,11 @@ export class UsersService {
 
 
   getByEmail(email: string): Observable<UserDocument> {
-    return from(this.userModel.findOne( {email}));
+    try {
+      return from(this.userModel.findOne( {email}));
+    } catch (e) {
+      return e.message;
+    }
   }
 
   update(id: string, user: UserInterface): Observable<UserDocument> {
