@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Req } from "@nestjs/common";
 import { NotesService } from "./notes.service";
 import { Observable } from "rxjs";
 import { NoteInterface } from "./interfaces/note.interface";
@@ -10,13 +10,13 @@ export class NotesController {
   }
 
   @Post()
-  create(@Body() note: NoteInterface): Observable<NoteDocument> {
-    return this.notesService.create(note);
+  create(@Body() note: NoteInterface, @Req() req): Observable<NoteDocument> {
+    return this.notesService.create(note, req);
   }
 
   @Get()
-  getAll(): Observable<NoteDocument[]> {
-    return this.notesService.getAll();
+  getAll(@Req() req): Observable<NoteDocument[]> {
+    return this.notesService.getAll(req);
   }
 
   @Put(':id')

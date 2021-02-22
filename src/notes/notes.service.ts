@@ -3,7 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Note, NoteDocument } from "./schemas/note.schema";
 import { Model } from "mongoose";
 import { UserInterface } from "../users/interfaces/user.interface";
-import { from, Observable } from "rxjs";
+import { from, Observable, of } from "rxjs";
 import { NoteInterface } from "./interfaces/note.interface";
 
 @Injectable()
@@ -11,13 +11,14 @@ export class NotesService {
   constructor(@InjectModel(Note.name) private noteModel: Model<NoteDocument>) {
   }
 
-  create(note: NoteInterface): Observable<NoteDocument> {
-    const newUser = new this.noteModel(note);
-    return from(newUser.save());
+  create(note: NoteInterface, req): Observable<NoteDocument> {
+    const newNote = new this.noteModel(note);
+    newNote.user = req.body.authedUser;
+    return from(newNote.save());
   }
 
-  getAll(): Observable<NoteDocument[]> {
-    return from(this.noteModel.find());
+  getAll(req): Observable<NoteDocument[]> {
+    return from(this.noteModel.find({ user: req.body.authedUser._id }));
   }
 
   update(id: string, note: NoteInterface): Observable<NoteDocument> {
