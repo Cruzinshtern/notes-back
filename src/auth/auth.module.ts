@@ -18,10 +18,12 @@ import { AuthMiddleware } from "./middleware/auth.middleware";
   providers: [AuthService],
   exports: [AuthService],
 })
-export class AuthModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthMiddleware)
-      .forRoutes({ path: 'users', method: RequestMethod.GET })
-  }
-}
+// export class AuthModule implements NestModule {
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer
+//       .apply(AuthMiddleware)
+//       .forRoutes({ path: 'users', method: RequestMethod.GET })
+//   }
+// }
+
+export class AuthModule {}
